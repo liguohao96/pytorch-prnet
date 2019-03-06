@@ -21,13 +21,13 @@ class resBlock(nn.Module):
 
         main_layers = [
             nn.Conv2d(in_c, out_c // 2, kernel_size=1, stride=1, padding=0, bias=False),
-            nn.BatchNorm2d(out_c // 2, eps=0.001),
+            nn.BatchNorm2d(out_c // 2, eps=0.001, momentum=0.001),
             nn.ReLU(inplace=True),
         ]
 
         main_layers.extend([
             *padding_same_conv2d(input_size, out_c // 2, out_c // 2, kernel_size=kernel_size, stride=stride),
-            nn.BatchNorm2d(out_c // 2, eps=0.001),
+            nn.BatchNorm2d(out_c // 2, eps=0.001, momentum=0.001),
             nn.ReLU(inplace=True)])
 
         main_layers.extend(
@@ -35,7 +35,7 @@ class resBlock(nn.Module):
         )
         self.main = nn.Sequential(*main_layers)
         self.activate = nn.Sequential(
-            nn.BatchNorm2d(out_c, eps=0.001),
+            nn.BatchNorm2d(out_c, eps=0.001, momentum=0.001),
             nn.ReLU(inplace=True)
         )
 
@@ -56,13 +56,13 @@ class upBlock(nn.Module):
             additional_conv += [
                 nn.ConstantPad2d((2, 1, 2, 1), 0),
                 nn.ConvTranspose2d(out_c, out_c, kernel_size=4, stride=1, padding=3, bias=False),
-                nn.BatchNorm2d(out_c, eps=0.001),
+                nn.BatchNorm2d(out_c, eps=0.001, momentum=0.001),
                 nn.ReLU(inplace=True)
             ]
         self.main = nn.Sequential(
             # nn.ConstantPad2d((0, 1, 0, 1), 0),
             nn.ConvTranspose2d(in_c, out_c, kernel_size=4, stride=2, padding=1, bias=False),
-            nn.BatchNorm2d(out_c, eps=0.001),
+            nn.BatchNorm2d(out_c, eps=0.001, momentum=0.001),
             nn.ReLU(inplace=True),
             *additional_conv
             )
@@ -77,7 +77,7 @@ class PRNet(nn.Module):
         size = 16
         self.input_conv = nn.Sequential( #*[
             *padding_same_conv2d(256, in_channel, size, kernel_size=4, stride=1),  # 256x256x16
-            nn.BatchNorm2d(size, eps=0.001),
+            nn.BatchNorm2d(size, eps=0.001, momentum=0.001),
             nn.ReLU(inplace=True)
             # ]
         ) 
@@ -95,7 +95,7 @@ class PRNet(nn.Module):
         self.center_conv = nn.Sequential(
             nn.ConstantPad2d((2, 1, 2, 1), 0),
             nn.ConvTranspose2d(size * 32, size * 32, kernel_size=4, stride=1, padding=3, bias=False),  # 8x8x512
-            nn.BatchNorm2d(size * 32, eps=0.001),
+            nn.BatchNorm2d(size * 32, eps=0.001, momentum=0.001),
             nn.ReLU(inplace=True)
         )
 
@@ -109,17 +109,17 @@ class PRNet(nn.Module):
         self.output_conv = nn.Sequential(
             nn.ConstantPad2d((2, 1, 2, 1), 0),
             nn.ConvTranspose2d(size, 3, kernel_size=4, stride=1, padding=3, bias=False),
-            nn.BatchNorm2d(3, eps=0.001),
+            nn.BatchNorm2d(3, eps=0.001, momentum=0.001),
             nn.ReLU(inplace=True),
 
             nn.ConstantPad2d((2, 1, 2, 1), 0),
             nn.ConvTranspose2d(3, 3, kernel_size=4, stride=1, padding=3, bias=False),
-            nn.BatchNorm2d(3, eps=0.001),
+            nn.BatchNorm2d(3, eps=0.001, momentum=0.001),
             nn.ReLU(inplace=True),
 
             nn.ConstantPad2d((2, 1, 2, 1), 0),
             nn.ConvTranspose2d(3, 3, kernel_size=4, stride=1, padding=3, bias=False),
-            nn.BatchNorm2d(3, eps=0.001),
+            nn.BatchNorm2d(3, eps=0.001, momentum=0.001),
             nn.Sigmoid()
         )
 
